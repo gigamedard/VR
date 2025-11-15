@@ -80,12 +80,18 @@
 
         try {
           // 3. Demander le partage d'écran (c'est le navigateur qui gère)
+// --- MODIFICATION ICI ---
           const stream = await navigator.mediaDevices.getDisplayMedia({
-            video: { cursor: "always" }, // On inclut le curseur
+            video: { 
+              cursor: "always",
+              // On force une résolution plus basse
+              width: { ideal: 1280, max: 1920 },
+              height: { ideal: 720, max: 1080 },
+              frameRate: { ideal: 30 } // 30fps est suffisant
+            },
             audio: false
           });
-
-          status.innerText = "Statut : Connexion au téléphone...";
+          // --- FIN DE LA MODIFICATION ---
 
           // 4. Appeler le téléphone en lui envoyant notre stream d'écran
           const call = peer.call(phoneID, stream);

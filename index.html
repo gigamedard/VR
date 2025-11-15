@@ -63,20 +63,30 @@
         console.log('Mon ID PeerJS est: ' + id);
       });
 
-      // 3. Quand quelqu'un (ton PC) essaie de "nous appeler"...
-      peer.on('call', (call) => {
-        infoBox.innerText = "Stream du PC reçu ! 🚀";
+// 3. Quand quelqu'un (ton PC) essaie de "nous appeler"...
+    peer.on('call', (call) => {
 
-        // ...on répond à l'appel
-        call.answer();
+    // On répond à l'appel
+    call.answer();
 
-        // 4. Quand on reçoit le flux vidéo...
-        call.on('stream', (remoteStream) => {
-          // ...on l'applique à notre balise <video>
-          videoElement.srcObject = remoteStream;
-          videoElement.play();
-        });
-      });
+    // 4. Quand on reçoit le flux vidéo...
+    call.on('stream', (remoteStream) => {
+        // ...on l'applique à notre balise <video>
+        videoElement.srcObject = remoteStream;
+
+        // --- MODIFICATION ICI ---
+        // AU LIEU de jouer la vidéo, on affiche un bouton
+        infoBox.innerHTML = "Stream reçu ! 🚀<br><strong>(Tapez ici pour démarrer)</strong>";
+        infoBox.style.cursor = "pointer"; // Change le curseur
+
+        // On ajoute un "listener" de clic sur ce bouton
+        infoBox.addEventListener('click', () => {
+            videoElement.play();
+            // On cache le bouton après le clic
+            infoBox.style.display = 'none'; 
+        }, { once: true }); // "once: true" supprime le listener après le clic
+    });
+});
 
       peer.on('error', (err) => {
         infoBox.innerText = `Erreur: ${err.type}`;
