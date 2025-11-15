@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>VR Workspace (Streamer)</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        background: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      #controls {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      input {
+        font-size: 18px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 300px;
+      }
+      button {
+        font-size: 18px;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      #status {
+        margin-top: 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <h1>Streamer de Bureau VR</h1>
+      <p>Entrez l'ID affiché sur votre téléphone :</p>
+      <input type="text" id="phone-id-input" placeholder="ID du téléphone..." />
+      <button id="start-stream-btn">Commencer le Stream</button>
+      <div id="status">Statut : Prêt</div>
+    </div>
+
+    <script>
+      const btn = document.getElementById("start-stream-btn");
+      const input = document.getElementById("phone-id-input");
+      const status = document.getElementById("status");
+
+      // 1. Initialiser PeerJS
+      const peer = new Peer(); 
+      
+      peer.on('open', (id) => {
+        status.innerText = `Statut : Connecté au serveur. Prêt à streamer.`;
+      });
+
+      // 2. Quand on clique sur le bouton
+      btn.addEventListener("click", async () => {
+        const phoneID = input.value;
+        if (!phoneID) {
+          alert("Veuillez entrer l'ID du téléphone.");
+          return;
+        }
+
+        status.innerText = "Statut : Demande de partage d'écran...";
+        console.log(`Tentative d'appel vers ${phoneID}`);
+
+        try {
+          // 3. Demander le partage d'écran (c'est le navigateur qui gère)
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: { cursor: "always" }, // On inclut le curseur
+            audio: false
+          });
+
+          status.innerText = "Statut : Connexion au téléphone...";
+
+          // 4. Appeler le téléphone en lui envoyant notre stream d'écran
+          const call = peer.call(phoneID, stream);
+
+          call.on('open', () => {
+            status.innerText = "Statut : Stream en cours ! 🚀";
+          });
+
+        } catch (err) {
+          status.innerText = `Erreur : ${err.message}`;
+          console.error(err);
+        }
+      });
+
+      peer.on('error', (err) => {
+        status.innerText = `Erreur: ${err.type}`;
+        console.error(err);
+      });
+    </script>
+  </body>
+</html>
