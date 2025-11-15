@@ -1,36 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>VR Video Test</title>
+    <meta charset="utf-8" />
+    <title>VR Workspace</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <style>
+      #enter-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background: white;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+        z-index: 9999;
+      }
+    </style>
   </head>
+
   <body>
-    <button onclick="playVideo()" style="font-size:20px; z-index:9999; position:absolute;">
-      ▶️ Lancer la vidéo
-    </button>
+    <button id="enter-btn">Entrer dans le mode écran</button>
 
-    <video id="video" src="sample.mp4"
-           loop playsinline
-           style="display:none"></video>
-
-    <!-- IMPORTANT : VR désactivé par défaut pour éviter l'écran noir -->
-    <a-scene vr-mode-ui="enabled: false">
+    <a-scene>
+      <!-- Caméra + contrôles téléphone -->
       <a-entity camera look-controls></a-entity>
 
-      <a-plane position="0 1.6 -2"
-               width="2.4" height="1.4"
-               material="shader: flat; src: #video">
+      <!-- Un écran virtuel pour tester -->
+      <a-plane id="screen"
+               width="2"
+               height="1"
+               position="0 1.5 -3"
+               color="#333">
       </a-plane>
-
-      <a-sky color="#111"></a-sky>
     </a-scene>
 
     <script>
-      function playVideo() {
-        const video = document.getElementById('video');
-        video.play().catch(err => console.error(err));
-      }
+      const btn = document.getElementById("enter-btn");
+      btn.addEventListener("click", () => {
+        alert("Le bouton fonctionne ! On est bon 🚀");
+      });
     </script>
   </body>
 </html>
