@@ -27,31 +27,29 @@
   </head>
 
   <body>
-    <div id="info-box">V 1.0.01 Connexion au serveur...</div>
+    <div id="info-box">v 2====> Connexion au serveur...</div>
 
     <a-scene>
       <a-assets>
         <video id="pc-stream-video" autoplay loop="true" playsinline crossorigin="anonymous"></video>
       </a-assets>
+
       <a-entity camera look-controls></a-entity>
 
       <a-plane id="screen"
                width="2"
                height="1.125"
                position="0 1.5 -2.5"
-               src="#pc-stream-video">
+               color="#333"> 
       </a-plane>
     </a-scene>
 
     <script>
       const infoBox = document.getElementById("info-box");
       const videoElement = document.getElementById("pc-stream-video");
+      const plane = document.getElementById('screen'); // On récupère le plan
 
-      console.log("Version 0.0.1 : Initialisation PeerJS...");
-      // PeerJS est OK, ce log était bon !
-      const peer = new Peer(null, {
-        debug: 2 
-      });
+      const peer = new Peer(null, { debug: 2 });
 
       peer.on('open', (id) => {
         infoBox.innerHTML = `Entrez cet ID sur le PC : <br><strong>${id}</strong>`;
@@ -63,13 +61,20 @@
         call.on('stream', (remoteStream) => {
           videoElement.srcObject = remoteStream;
 
-          // C'est la correction N°2 (clic pour démarrer)
           infoBox.innerHTML = "Stream reçu ! 🚀<br><strong>(Tapez ici pour démarrer)</strong>";
           infoBox.style.cursor = "pointer"; 
 
           infoBox.addEventListener('click', () => {
             videoElement.play();
             infoBox.style.display = 'none'; 
+
+            // ========================================
+            // MODIFICATION 2 : MAGIE ICI
+            // Maintenant que la vidéo est lancée,
+            // on dit à l'a-plane de l'utiliser comme texture.
+            // ========================================
+            plane.setAttribute('material', 'src', '#pc-stream-video');
+
           }, { once: true });
         });
       });
