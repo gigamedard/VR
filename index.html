@@ -73,7 +73,12 @@
             // Maintenant que la vidéo est lancée,
             // on dit à l'a-plane de l'utiliser comme texture.
             // ========================================
-            plane.setAttribute('material', 'src', '#pc-stream-video');
+            plane.setAttribute('material', {
+                  src: videoElement,
+                  color: '#FFFFFF'
+                });
+                
+                console.log("Matériel A-Frame mis à jour (vidéo + couleur blanche).");
 
           }, { once: true });
         });
