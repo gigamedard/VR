@@ -5,7 +5,6 @@
     <title>VR Workspace (Client)</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
     <style>
       #info-box {
         position: absolute;
@@ -22,7 +21,7 @@
         text-align: center;
       }
       #pc-stream-video {
-        display: none; /* La vidéo source est cachée */
+        display: none;
       }
     </style>
   </head>
@@ -30,16 +29,16 @@
   <body>
     <div id="info-box">Connexion au serveur...</div>
 
-    <a-assets>
-      <video id="pc-stream-video" autoplay loop="true" playsinline crossorigin="anonymous"></video>
-    </a-assets>
-
     <a-scene>
+      <a-assets>
+        <video id="pc-stream-video" autoplay loop="true" playsinline crossorigin="anonymous"></video>
+      </a-assets>
       <a-entity camera look-controls></a-entity>
 
       <a-plane id="screen"
                width="2"
-               height="1.125" position="0 1.5 -2.5"
+               height="1.125"
+               position="0 1.5 -2.5"
                src="#pc-stream-video">
       </a-plane>
     </a-scene>
@@ -48,45 +47,31 @@
       const infoBox = document.getElementById("info-box");
       const videoElement = document.getElementById("pc-stream-video");
 
-      // 1. Initialiser PeerJS
-      // (null = PeerJS nous donne un ID aléatoire)
+      // PeerJS est OK, ce log était bon !
       const peer = new Peer(null, {
-        // Tu peux laisser ces options par défaut
         debug: 2 
       });
 
-      // 2. Quand la connexion au serveur PeerJS est faite...
       peer.on('open', (id) => {
-        // ...on affiche notre ID.
-        // C'est cet ID que tu devras entrer sur ton PC
         infoBox.innerHTML = `Entrez cet ID sur le PC : <br><strong>${id}</strong>`;
         console.log('Mon ID PeerJS est: ' + id);
       });
 
-// 3. Quand quelqu'un (ton PC) essaie de "nous appeler"...
-    peer.on('call', (call) => {
+      peer.on('call', (call) => {
+        call.answer();
+        call.on('stream', (remoteStream) => {
+          videoElement.srcObject = remoteStream;
 
-    // On répond à l'appel
-    call.answer();
+          // C'est la correction N°2 (clic pour démarrer)
+          infoBox.innerHTML = "Stream reçu ! 🚀<br><strong>(Tapez ici pour démarrer)</strong>";
+          infoBox.style.cursor = "pointer"; 
 
-    // 4. Quand on reçoit le flux vidéo...
-    call.on('stream', (remoteStream) => {
-        // ...on l'applique à notre balise <video>
-        videoElement.srcObject = remoteStream;
-
-        // --- MODIFICATION ICI ---
-        // AU LIEU de jouer la vidéo, on affiche un bouton
-        infoBox.innerHTML = "Stream reçu ! 🚀<br><strong>(Tapez ici pour démarrer)</strong>";
-        infoBox.style.cursor = "pointer"; // Change le curseur
-
-        // On ajoute un "listener" de clic sur ce bouton
-        infoBox.addEventListener('click', () => {
+          infoBox.addEventListener('click', () => {
             videoElement.play();
-            // On cache le bouton après le clic
             infoBox.style.display = 'none'; 
-        }, { once: true }); // "once: true" supprime le listener après le clic
-    });
-});
+          }, { once: true });
+        });
+      });
 
       peer.on('error', (err) => {
         infoBox.innerText = `Erreur: ${err.type}`;
